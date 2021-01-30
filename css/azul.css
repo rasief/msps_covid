@@ -1,0 +1,64 @@
+/* CSS Document */
+
+.topbar{
+    background: #fff;
+}
+
+.div_interno .encabezado{
+	background-color: #008cc7; /* layer fill content */
+}
+
+table.modal_table th{
+	background-color: #019fe1;
+}
+
+div.pager span.active {
+    background: #008cc7;
+}
+
+.btnPrincipal{
+    background-color: #019fe1 !important;
+    -moz-box-shadow: 0 2px 0 #0081b7;
+    -webkit-box-shadow: 0 2px 0 #0081b7;
+    box-shadow: 0 2px 0 #0081b7;
+}
+
+.btnPrincipal:hover{
+    background-color: #088dc5 !important;
+}
+.onoffswitch-inner:before {
+    background-color: #019fe1;
+}
+
+
+.tabs dd.active{
+	border-top: 2px solid #019fe1;
+}
+
+
+.opt_panel_1{
+	background-color: rgba(0,140,199,0.06);
+}
+
+.ver_obser{
+	background-image: url(../imagenes/ver_derecha.png);
+	background-repeat:no-repeat; 
+    width:16px;
+    height:16px;
+    position:relative;
+    float:left;
+    cursor: pointer;
+}
+
+
+.ind_observaciones{
+	background-image: url(../imagenes/icon-convencion-disponible.png);
+	background-repeat:no-repeat; 
+    width:10px;
+    height:10px;
+    position:relative;
+    float:right;
+}
+
+
+
