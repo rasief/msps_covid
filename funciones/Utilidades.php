@@ -50,8 +50,27 @@ class Utilidades {
 		}
 	}
 	
-	
-	
-	
+    /**
+     * Función que quita acentos y ñ, y convierte un texto a minúsculas
+     */
+	function simplificar_texto($texto) {
+        $texto_rta = str_replace("Á", "A", $texto);
+		$texto_rta = str_replace("á", "a", $texto_rta);
+		$texto_rta = str_replace("É", "E", $texto_rta);
+		$texto_rta = str_replace("é", "e", $texto_rta);
+		$texto_rta = str_replace("Í", "I", $texto_rta);
+		$texto_rta = str_replace("í", "i", $texto_rta);
+		$texto_rta = str_replace("Ó", "O", $texto_rta);
+		$texto_rta = str_replace("ó", "o", $texto_rta);
+		$texto_rta = str_replace("Ú", "U", $texto_rta);
+		$texto_rta = str_replace("ú", "u", $texto_rta);
+		$texto_rta = str_replace("Ü", "U", $texto_rta);
+		$texto_rta = str_replace("ü", "u", $texto_rta);
+		$texto_rta = str_replace("Ñ", "N", $texto_rta);
+		$texto_rta = str_replace("ñ", "n", $texto_rta);
+		
+		return strtolower($texto_rta);
+	}
+    
 }
 ?>

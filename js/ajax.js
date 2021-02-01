@@ -147,5 +147,3 @@ function llamarAjaxUploadFiles(strURL, strPARAM, objDestino, funcion, idBarraPro
 		console.log("llamarAjaxUploadFiles->" + err.message);
 	}
 }
-
-/*END*/
