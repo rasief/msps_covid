@@ -88,4 +88,16 @@ class DbMunicipios extends DbConexion {//Clase que hace referencia a la tabla: l
         }
     }
 
+    public function getListaDistritosClasificacion() {
+        try {
+            $sql = "SELECT * FROM distritos_clasificacion
+                    ORDER BY nom_dep, nom_mun";
+            
+            //echo($sql . "<br>");
+            return $this->getDatos($sql);
+        } catch (Exception $e) {
+            return array();
+        }
+    }
+    
 }
