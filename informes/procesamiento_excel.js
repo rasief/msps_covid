@@ -42,11 +42,11 @@ function cargar_archivos() {
 
         var params = "opcion=1&fecha=" + $("#txt_fecha").val();
 
-        llamarAjaxUploadFiles("procesamiento_excel_ajax.php", params, "d_carga_archivos", "", "", "fil_arch");
+        llamarAjaxUploadFiles("procesamiento_excel_ajax.php", params, "d_carga_archivos", "finalizar_cargar_archivos();", "", "fil_arch");
     } else {
-        $("#contenedor_error").addClass("contenedor_error_visible");
-        $('#contenedor_error').html('Debe seleccionar un archivo para cargar');
-
+        $("#d_contenedor_error").css("display", "block");
+        $('#d_contenedor_error').html('Debe seleccionar un archivo para cargar');
+        
         window.scroll(0, 0);
     }
 }
@@ -64,46 +64,21 @@ function mostrarVentana() {
     $('#myModal').modal();
 }
 
-function finalizar_cargar_datos(ind_resultado) {
-    //alert(ind_resultado);
-    $("#contenedor_error").css("display", "none");
-    $("#contenedor_exito").css("display", "none");
+function finalizar_cargar_archivos() {
+    $("#d_contenedor_error").css("display", "none");
+    $("#d_contenedor_error").css("display", "none");
 
     $("#btn_cargar_datos").removeAttr("disabled");
     $("#d_boton_cargar_datos").css("display", "block");
     $("#d_espera_cargar_datos").css("display", "none");
-
-    if (ind_resultado > 0) {
-        if (ind_resultado == 1) {
-            $("#d_contenedor_exito").html("Archivo cargado con &eacute;xito");
-            $("#d_contenedor_exito").css("display", "block");
-        }
-    } else if (ind_resultado == -1) {
-        $("#d_contenedor_error").html("Error - El archivo esta vacio");
-        $("#d_contenedor_error").css("display", "block");
-    } else if (ind_resultado == -2) {
-        $("#d_contenedor_error").html("Error - El archivo no tiene extensión");
-        $("#d_contenedor_error").css("display", "block");
-    } else if (ind_resultado == -3) {
-        $("#d_contenedor_error").html("Error - El archivo cargado no tiene la extensión correcta .csv");
-        $("#d_contenedor_error").css("display", "block");
-    } else if (ind_resultado == -4) {
-        $("#d_contenedor_error").html("Error - El archivo cargado no tiene todas las columnas requeridas");
-        $("#d_contenedor_error").css("display", "block");
-    } else if (ind_resultado == -5) {
-        $("#d_contenedor_error").html("Error - El archivo no cumple con algunos de los parametro de inicio, Fecha de movimiento, Tipo de cargue, Sociedad");
-        $("#d_contenedor_error").css("display", "block");
-    } else if (ind_resultado == -6) {
-        $("#d_contenedor_error").html("Error interno al registrar");
-        $("#d_contenedor_error").css("display", "block");
-    } else if (ind_resultado == -7) {
-        $("#d_contenedor_error").html("Error - Error al Eliminar Datos del Mes");
-        $("#d_contenedor_error").css("display", "block");
-    } else if (ind_resultado == -8) {
-        $("#d_contenedor_error").html("Error - La fecha seleccionada no corresponde a la Fecha del archivo");
-        $("#d_contenedor_error").css("display", "block");
+    
+    var resultado = trim($("#d_carga_interna").html());
+    
+    if (resultado == "") {
+        $("#d_contenedor_exito").html("Archivos procesados con &eacute;xito");
+        $("#d_contenedor_exito").css("display", "block");
     } else {
-        $("#d_contenedor_error").html("Error interno al tratar de cargar el archivo");
+        $("#d_contenedor_error").html("Se present&oacute; el siguiente error:<br>" + resultado);
         $("#d_contenedor_error").css("display", "block");
     }
 }

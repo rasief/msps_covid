@@ -46,8 +46,8 @@ $titulo = $dbVariables->getVariable(1);
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <div class="alert alert-danger contenedor_error" role="alert" id='contenedor_error'></div>
-                    <div class="alert alert-success contenedor_exito" role="alert" id='contenedor_exito'></div>
+                    <div id="d_contenedor_error" class="alert alert-danger" role="alert" style="display:none;"></div>
+                    <div id="d_contenedor_exito" class="alert alert-success" role="alert" style="display:none;"></div>
                 </div>
             </div>
             <div class="row">
