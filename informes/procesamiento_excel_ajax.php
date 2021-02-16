@@ -174,23 +174,24 @@ function obtener_entes_territoriales($libro_excel, $col_dep, $col_mun, $mapa_dis
 function validar_incluir_territorio($nom_dep, $nom_mun, $territorio, $lista_territorios) {
     $bol_incluir = false;
     if ($territorio["tipo"] == "D") {
-        if ($nom_dep == $territorio["nom_dep"]) {
+        if ($nom_dep === $territorio["nom_dep"]) {
             $bol_incluir = true;
             
             //Se verifica si el municipio es un territorio independiente (distrito)
             foreach ($lista_territorios as $territorio_aux) {
-                if ($territorio_aux["tipo"] == "M" && $territorio_aux["nom_dep"] == $nom_dep && $territorio_aux["nom_mun"] == $nom_mun) {
+                if ($territorio_aux["tipo"] == "M" && $territorio_aux["nom_dep"] === $nom_dep && $territorio_aux["nom_mun"] === $nom_mun) {
                     $bol_incluir = false;
                     break;
                 }
             }
         }
-    } else {
-        if ($nom_mun == $territorio["nom_mun"]) {
+    } else if ($territorio["tipo"] == "M") {
+        if ($nom_mun === $territorio["nom_mun"]) {
             $bol_incluir = true;
         }
     }
     
+    //echo("#" . $territorio["tipo"] . "#" . $territorio["nom_dep"] . "#" . $territorio["nom_mun"] . "#" . $nom_dep . "#" . $nom_mun . "#" . ($bol_incluir ? 1 : 0) . "#<br>");
     return $bol_incluir;
 }
 
@@ -202,6 +203,11 @@ function procesar_archivo_excel($nombre_arch, $nombre_tmp, $mapa_distritos, $rut
     $libro_des = null;
     
     foreach ($lista_territorios as $territorio_aux) {
+        //Se ignoran los territorios vacíos
+        if ($territorio_aux["nom_dep"] === "" || $territorio_aux["nom_dep"] === 0) {
+            continue;
+        }
+        
         $libro_des = IOFactory::load($nombre_tmp);
         
         $lista_hojas = $libro_des->getSheetNames();
@@ -292,6 +298,7 @@ function procesar_archivo_excel($nombre_arch, $nombre_tmp, $mapa_distritos, $rut
         
         //Se crea el archivo del territorio
         $writer = new XlsxWrite($libro_des);
+        //echo("2 " . $ruta_territorio . $nombre_territorio . " " . $nombre_arch . "<br>");
         $writer->save($ruta_territorio . $nombre_territorio . " " . $nombre_arch);
         $libro_des = null;
     }
@@ -434,8 +441,8 @@ switch ($opcion) {
                         $col_mun = "W";
                     } else if (strpos(strtolower($nombre_ori_aux), "monitoreo estado de salud") === 0) {
                         $tipo_arch = 2;
-                        $col_dep = "S";
-                        $col_mun = "T";
+                        $col_dep = "R";
+                        $col_mun = "S";
                     } else if (strpos(strtolower($nombre_ori_aux), "monitoreo viajeros") === 0) {
                         $tipo_arch = 3;
                         $col_dep = "P";
@@ -464,6 +471,10 @@ switch ($opcion) {
                         $tipo_arch = 9;
                         $col_dep = "P";
                         $col_mun = "Q";
+                    } else if (strpos(strtolower($nombre_ori_aux), "reporte nacional de salud") === 0) {
+                        $tipo_arch = 10;
+                        $col_dep = "N";
+                        $col_mun = "O";
                     }
                     
                     if ($tipo_arch > 0) {
