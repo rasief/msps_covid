@@ -288,7 +288,7 @@ class ClassGraficos {
 
         $array_frecuencias = array();
         foreach ($tabla_frecuencias as $fila) {
-            $mes_noti = $fila['mes_noti'];
+            $mes_noti = $fila['mes_noti'] . "/" . $fila["ano_noti"];
             $tipo_atencion = $fila['tipo_atencion'];
             $cantidad = $fila['cantidad'];
 
