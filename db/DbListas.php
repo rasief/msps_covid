@@ -4,14 +4,16 @@ require_once("DbConexion.php");
 
 class DbListas extends DbConexion {//Clase que hace referencia a la tabla: listas_detalle
 
-    public function getListaDetalles($idLista) {
+    public function getListaDetalles($id_lista, $ind_activo = "") {
         try {
-            $sql = "SELECT id_detalle, codigo_detalle, nombre_detalle, orden " .
-                    "FROM listas_detalle " .
-                    "WHERE id_lista=" . $idLista . " " .
-                    "ORDER BY orden";
+            $sql = "SELECT *
+                    FROM listas_detalle
+                    WHERE id_lista=" . $id_lista . " ";
+            if ($ind_activo != "") {
+                $sql .= "AND ind_activo=" . $ind_activo . " ";
+            }
+            $sql .= "ORDER BY orden";
 			
-
             return $this->getDatos($sql);
         } catch (Exception $e) {
             return array();
