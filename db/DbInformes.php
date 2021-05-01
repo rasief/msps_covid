@@ -116,9 +116,10 @@ class DbInformes extends DbConexion {
 
     public function getListaInformes() {
         try {
-            $sql = "SELECT c.fecha_cargue_archivo, c.nombre_archivo, COUNT(*) as cantidad
-                        FROM casos_covid_colombia c
-                        GROUP BY c.fecha_cargue_archivo, c.nombre_archivo";
+            $sql = "SELECT c.fecha_cargue_archivo, c.nombre_archivo,
+                    DATE_FORMAT(c.fecha_cargue_archivo, '%d/%m/%Y %h:%i:%s %p') AS fecha_cargue_archivo_t, COUNT(*) as cantidad
+                    FROM casos_covid_colombia c
+                    GROUP BY c.fecha_cargue_archivo, c.nombre_archivo";
 
             return $this->getDatos($sql);
         } catch (Exception $e) {
@@ -1064,6 +1065,33 @@ class DbInformes extends DbConexion {
         }
     }
 
+    public function getListaCasosUltimasSemanas() {
+        try {
+            $sql = "SELECT D.cod_dep, D.nom_dep, M.cod_mun_dane, M.nom_mun,
+                    SUM(CASE WHEN IFNULL(CC.fecha_inicio_sintomas, CC.fecha_notificacion)<=DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())-1 DAY) THEN 1 ELSE 0 END) AS casos,
+                    SUM(CASE WHEN CC.atencion='Fallecido' AND CC.fecha_muerte<=DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())-1 DAY) THEN 1 ELSE 0 END) AS defunciones,
+                    SUM(CASE WHEN IFNULL(CC.fecha_inicio_sintomas, CC.fecha_notificacion) BETWEEN DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+5 DAY) AND DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())-1 DAY) THEN 1 ELSE 0 END) AS casos_sem1,
+                    SUM(CASE WHEN CC.atencion='Fallecido' AND CC.fecha_muerte BETWEEN DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+5 DAY) AND DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())-1 DAY) THEN 1 ELSE 0 END) AS defun_sem1,
+                    SUM(CASE WHEN IFNULL(CC.fecha_inicio_sintomas, CC.fecha_notificacion) BETWEEN DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+12 DAY) AND DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+6 DAY) THEN 1 ELSE 0 END) AS casos_sem2,
+                    SUM(CASE WHEN CC.atencion='Fallecido' AND CC.fecha_muerte BETWEEN DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+12 DAY) AND DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+6 DAY) THEN 1 ELSE 0 END) AS defun_sem2,
+                    SUM(CASE WHEN IFNULL(CC.fecha_inicio_sintomas, CC.fecha_notificacion) BETWEEN DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+19 DAY) AND DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+13 DAY) THEN 1 ELSE 0 END) AS casos_sem3,
+                    SUM(CASE WHEN CC.atencion='Fallecido' AND CC.fecha_muerte BETWEEN DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+19 DAY) AND DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+13 DAY) THEN 1 ELSE 0 END) AS defun_sem3,
+                    SUM(CASE WHEN IFNULL(CC.fecha_inicio_sintomas, CC.fecha_notificacion) BETWEEN DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+26 DAY) AND DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+20 DAY) THEN 1 ELSE 0 END) AS casos_sem4,
+                    SUM(CASE WHEN CC.atencion='Fallecido' AND CC.fecha_muerte BETWEEN DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+26 DAY) AND DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+20 DAY) THEN 1 ELSE 0 END) AS defun_sem4,
+                    SUM(CASE WHEN IFNULL(CC.fecha_inicio_sintomas, CC.fecha_notificacion) BETWEEN DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+33 DAY) AND DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+27 DAY) THEN 1 ELSE 0 END) AS casos_sem5,
+                    SUM(CASE WHEN CC.atencion='Fallecido' AND CC.fecha_muerte BETWEEN DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+33 DAY) AND DATE_SUB(CURDATE(), INTERVAL DAYOFWEEK(CURDATE())+27 DAY) THEN 1 ELSE 0 END) AS defun_sem5
+                    FROM casos_covid_colombia CC
+                    INNER JOIN municipios M ON CC.codigo_divipola=M.cod_mun_dane
+                    INNER JOIN departamentos D ON M.cod_dep=D.cod_dep
+                    GROUP BY D.cod_dep, M.cod_mun_dane
+                    ORDER BY D.cod_dep, M.cod_mun_dane";
+
+            return $this->getDatos($sql);
+        } catch (Exception $e) {
+            return array();
+        }
+    }
+    
 }
 
 ?>

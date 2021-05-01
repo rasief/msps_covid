@@ -162,8 +162,7 @@ switch ($opcion) {
                     $doc_salida->getActiveSheet()
                             ->getStyle("H" . $contador_linea)
                             ->getNumberFormat()
-                            ->setFormatCode(
-                            NumberFormat::FORMAT_DATE_DDMMYYYY);
+                            ->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
                     
                     $contador_linea++;
                 }
