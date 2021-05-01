@@ -100,6 +100,20 @@ class DbMunicipios extends DbConexion {//Clase que hace referencia a la tabla: l
         }
     }
     
+    public function getListaMunicipiosPoblacion($anio) {
+        try {
+            $sql = "SELECT M.*, D.nom_dep, IFNULL(PM.cantidad, 0) AS poblacion
+                    FROM municipios M
+                    INNER JOIN departamentos D ON M.cod_dep=D.cod_dep
+                    LEFT JOIN poblacion_municipio PM ON M.cod_mun_dane=PM.cod_municipio AND PM.anio=" . $anio . "
+                    ORDER BY M.cod_mun_dane";
+           
+            return $this->getDatos($sql);
+        } catch (Exception $e) {
+            return array();
+        }
+    }
+    
     public function getListaMunicipiosMayusc() {
         try {
             $sql = "SELECT M.cod_mun_dane, UPPER(D.nom_dep) AS nom_dep, UPPER(M.nom_mun) AS nom_mun
