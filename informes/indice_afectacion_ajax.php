@@ -76,6 +76,15 @@ switch ($opcion) {
                 
                 unset($libro_des);
                 
+                //Se obtiene el listado de departamentos
+                $lista_departamentos = $dbMunicipios->getListaDepartamentosPoblacion(2020);
+                $mapa_departamentos = array();
+                foreach ($lista_departamentos as $departamento_aux) {
+                    $departamento_aux["total_casos"] = 0;
+                    $departamento_aux["acumulado_4"] = 0;
+                    $mapa_departamentos[$departamento_aux["cod_dep"]] = $departamento_aux;
+                }
+                
                 //Se obtiene el listado de municipios
                 $lista_municipios = $dbMunicipios->getListaMunicipiosPoblacion(2020);
                 
@@ -146,6 +155,15 @@ switch ($opcion) {
                     $s1 = $semana2 + $semana3;
                     $s2 = $semana4 + $semana5;
                     $acumulado4 = $s1 + $s2;
+                    
+                    //Se agregan los totales al mapa de departamentos
+                    if (isset($mapa_departamentos[$municipio_aux["cod_dep"]])) {
+                        $departamento_aux = $mapa_departamentos[$municipio_aux["cod_dep"]];
+                        $departamento_aux["total_casos"] += $total_casos;
+                        $departamento_aux["acumulado_4"] += $acumulado4;
+                        
+                        $mapa_departamentos[$municipio_aux["cod_dep"]] = $departamento_aux;
+                    }
                     
                     if ($total_casos > 0) {
                         $afectacion = "Afectación";
@@ -576,7 +594,7 @@ switch ($opcion) {
                         ->setCellValue("C1", "Cod_Municipio")
                         ->setCellValue("D1", "Municipio")
                         ->setCellValue("E1", "Clasificación Final")
-                        ->setCellValue("F1", "Municipios en descenso o ascenso en casos confirmados ")
+                        ->setCellValue("F1", "Municipios en descenso o ascenso en casos confirmados")
                         ->setCellValue("G1", "Municipios en descenso o ascenso en muertes confirmadas");
                 
                 $contador_linea = 2;
@@ -650,6 +668,68 @@ switch ($opcion) {
                     
                     $contador_linea++;
                 }
+                
+                //Se ponen los títulos en negrilla
+                $doc_salida->getActiveSheet()->getStyle("A1:G1")->getFont()->setBold(true);
+                
+                //Ajuste de línea para los títulos
+                $doc_salida->getActiveSheet()->getStyle("A1:G1")->getAlignment()->setWrapText(true);
+                
+                //Se centra el texto horizontal y verticalmente
+                $doc_salida->getActiveSheet()->getStyle("A1:G" . ($contador_linea - 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $doc_salida->getActiveSheet()->getStyle("A1:G" . ($contador_linea - 1))->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+                
+                /***************************/
+                /*Consolidado departamental*/
+                /***************************/
+                $hoja_aux = new Worksheet($doc_salida, "Departamentos");
+                $doc_salida->addSheet($hoja_aux);
+                $doc_salida->setActiveSheetIndex(4);
+                $doc_salida->getActiveSheet()->getColumnDimension("A")->setWidth(12);
+                $doc_salida->getActiveSheet()->getColumnDimension("B")->setWidth(28);
+                $doc_salida->getActiveSheet()->getColumnDimension("C")->setWidth(12);
+                $doc_salida->getActiveSheet()->getColumnDimension("D")->setWidth(14);
+                $doc_salida->getActiveSheet()->getColumnDimension("E")->setWidth(16);
+                $doc_salida->getActiveSheet()->getColumnDimension("F")->setWidth(24);
+                $doc_salida->getActiveSheet()->getColumnDimension("G")->setWidth(21);
+                
+                $doc_salida->getActiveSheet()
+                        ->setCellValue("A1", "Cod_Depto")
+                        ->setCellValue("B1", "Nombre_Depto")
+                        ->setCellValue("C1", "Población 2020")
+                        ->setCellValue("D1", "Casos acumulados Total general")
+                        ->setCellValue("E1", "Tasas de casos Covid19 por 100 mil habitantes")
+                        ->setCellValue("F1", "Casos en los acumulados 4 semanas de estudio, sin contar la última semana")
+                        ->setCellValue("G1", "Tasa casos COVID19 últimas 4 semanas por 100 mil habitantes");
+                
+                $contador_linea = 2;
+                foreach ($mapa_departamentos as $departamento_aux) {
+                    //Se calculan las tasas
+                    if ($departamento_aux["poblacion"] > 0) {
+                        $tasa_general = ($departamento_aux["total_casos"] / $departamento_aux["poblacion"]) * 100000;
+                        $tasa_acumulado_4 = ($departamento_aux["acumulado_4"] / $departamento_aux["poblacion"]) * 100000;
+                    } else {
+                        $tasa_general = 0;
+                        $tasa_acumulado_4 = 0;
+                    }
+                    
+                    $doc_salida->getActiveSheet()
+                            ->setCellValueExplicit("A" . $contador_linea, $departamento_aux["cod_dep"], DataType::TYPE_STRING)
+                            ->setCellValue("B" . $contador_linea, $departamento_aux["nom_dep"])
+                            ->setCellValue("C" . $contador_linea, $departamento_aux["poblacion"])
+                            ->setCellValue("D" . $contador_linea, $departamento_aux["total_casos"])
+                            ->setCellValue("E" . $contador_linea, $tasa_general)
+                            ->setCellValue("F" . $contador_linea, $departamento_aux["acumulado_4"])
+                            ->setCellValue("G" . $contador_linea, $tasa_acumulado_4);
+                    
+                    $contador_linea++;
+                }
+                
+                //Se formatean a enteros las columnas de valores
+                $doc_salida->getActiveSheet()
+                        ->getStyle("C2:G" . ($contador_linea - 1))
+                        ->getNumberFormat()
+                        ->setFormatCode("#,##0");
                 
                 //Se ponen los títulos en negrilla
                 $doc_salida->getActiveSheet()->getStyle("A1:G1")->getFont()->setBold(true);
