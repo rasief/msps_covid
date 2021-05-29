@@ -947,7 +947,7 @@ switch ($opcion) {
 
         //Se obtiene el año actual
         $obj_aux = $dbVariables->getAnoMesDia();
-        $anio_actual = $obj_aux["anio_actual"];
+        $anio_actual = "2020"; //$obj_aux["anio_actual"];
 
         //Se obtiene la población total del país
         $obj_aux = $dbMunicipios->getPoblacionPais($anio_actual);
