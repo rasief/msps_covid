@@ -976,34 +976,14 @@ class DbInformes extends DbConexion {
 
     public function getDatosGeneralesMunicipalCantidades($dato_fecha) {
         try {
-            /* $sql = "SELECT C.codigo_divipola, PM.cantidad AS poblacion, COUNT(*) AS casos, SUM(CASE C.atencion WHEN 'Fallecido' THEN 1 ELSE 0 END) AS fallecidos,
-              SUM(CASE WHEN C.edad<60 THEN 1 ELSE 0 END) AS casos_0_59, SUM(CASE WHEN C.atencion='Fallecido' AND C.edad<60 THEN 1 ELSE 0 END) AS fallecidos_0_59,
-              SUM(CASE WHEN C.edad>=60 THEN 1 ELSE 0 END) AS casos_60, SUM(CASE WHEN C.atencion='Fallecido' AND C.edad>=60 THEN 1 ELSE 0 END) AS fallecidos_60
-              FROM casos_covid_colombia C
-              INNER JOIN lista_municipios_especiales ME ON C.codigo_divipola=ME.cod_mun_dane
-              INNER JOIN poblacion_municipio PM ON C.codigo_divipola=PM.cod_municipio
-              WHERE C.fecha_cargue_archivo='" . $dato_fecha . "'
-              AND ME.ind_activo=1
-              AND PM.anio=YEAR('" . $dato_fecha . "')
-              GROUP BY C.codigo_divipola
-              UNION ALL
-              SELECT C.codigo_departamento, PM.cantidad AS poblacion, COUNT(*) AS casos, SUM(CASE C.atencion WHEN 'Fallecido' THEN 1 ELSE 0 END) AS fallecidos,
-              SUM(CASE WHEN C.edad<60 THEN 1 ELSE 0 END) AS casos_0_59, SUM(CASE WHEN C.atencion='Fallecido' AND C.edad<60 THEN 1 ELSE 0 END) AS fallecidos_0_59,
-              SUM(CASE WHEN C.edad>=60 THEN 1 ELSE 0 END) AS casos_60, SUM(CASE WHEN C.atencion='Fallecido' AND C.edad>=60 THEN 1 ELSE 0 END) AS fallecidos_60
-              FROM casos_covid_colombia C
-              INNER JOIN lista_municipios_especiales ME ON C.codigo_departamento=ME.cod_mun_dane
-              INNER JOIN poblacion_departamento PM ON C.codigo_departamento=PM.cod_departamento
-              WHERE C.fecha_cargue_archivo='" . $dato_fecha . "'
-              AND ME.ind_activo=1
-              AND PM.anio=YEAR('" . $dato_fecha . "')
-              GROUP BY C.codigo_departamento"; */
             $sql = "SELECT C.codigo_divipola, PM.cantidad AS poblacion, COUNT(*) AS casos, SUM(CASE C.atencion WHEN 'Fallecido' THEN 1 ELSE 0 END) AS fallecidos,
                     SUM(CASE WHEN C.edad<60 THEN 1 ELSE 0 END) AS casos_0_59, SUM(CASE WHEN C.atencion='Fallecido' AND C.edad<60 THEN 1 ELSE 0 END) AS fallecidos_0_59,
                     SUM(CASE WHEN C.edad>=60 THEN 1 ELSE 0 END) AS casos_60, SUM(CASE WHEN C.atencion='Fallecido' AND C.edad>=60 THEN 1 ELSE 0 END) AS fallecidos_60
                     FROM casos_covid_colombia C
                     INNER JOIN poblacion_municipio PM ON C.codigo_divipola=PM.cod_municipio
                     WHERE C.fecha_cargue_archivo='" . $dato_fecha . "'
-                    AND PM.anio=YEAR('" . $dato_fecha . "')
+                    /*AND PM.anio=YEAR('" . $dato_fecha . "')*/
+                    AND PM.anio='2020'
                     GROUP BY C.codigo_divipola
                     UNION ALL
                     SELECT C.codigo_departamento, PM.cantidad AS poblacion, COUNT(*) AS casos, SUM(CASE C.atencion WHEN 'Fallecido' THEN 1 ELSE 0 END) AS fallecidos,
@@ -1012,7 +992,8 @@ class DbInformes extends DbConexion {
                     FROM casos_covid_colombia C
                     INNER JOIN poblacion_departamento PM ON C.codigo_departamento=PM.cod_departamento
                     WHERE C.fecha_cargue_archivo='" . $dato_fecha . "'
-                    AND PM.anio=YEAR('" . $dato_fecha . "')
+                    /*AND PM.anio=YEAR('" . $dato_fecha . "')*/
+                    AND PM.anio='2020'
                     GROUP BY C.codigo_departamento";
 
             return $this->getDatos($sql);
