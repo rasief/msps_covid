@@ -195,7 +195,7 @@ function validar_incluir_territorio($nom_dep, $nom_mun, $territorio, $lista_terr
     return $bol_incluir;
 }
 
-function procesar_archivo_excel($nombre_arch, $nombre_tmp, $mapa_distritos, $ruta_base, $col_dep, $col_mun) {
+function procesar_archivo_excel($nombre_arch, $nombre_tmp, $mapa_distritos, $ruta_base, $col_dep, $col_mun, $mapa_territorios_archivos) {
     //Se obtiene el listado de entes territoriales presentes
     //echo("#" . $nombre_arch . "#" . $nombre_tmp . "#" . $col_dep . "#" . $col_mun . "#<br>");
     $libro_des = IOFactory::load($nombre_tmp);
@@ -253,6 +253,18 @@ function procesar_archivo_excel($nombre_arch, $nombre_tmp, $mapa_distritos, $rut
                     $nombre_celda_dest_ini = "A" . $cont_fila_dest;
                     CopyUtils::copyRows($hoja_aux, $nombre_celda_ini . ":" . $nombre_celda_fin, $nombre_celda_dest_ini, $hoja_des_aux);
                     
+                    //Se aumenta el conteo de archivos y territorios
+                    if ($territorio_aux["tipo"] == "D") {
+                        $nom_territorio_aux = $territorio_aux["nom_dep"];
+                    } else {
+                        $nom_territorio_aux = $territorio_aux["nom_mun"];
+                    }
+                    if (isset($mapa_territorios_archivos[$nom_territorio_aux][$nombre_arch])) {
+                        $mapa_territorios_archivos[$nom_territorio_aux][$nombre_arch] += 1;
+                    } else {
+                        $mapa_territorios_archivos[$nom_territorio_aux][$nombre_arch] = 1;
+                    }
+                    
                     $cont_fila_dest++;
                 }
             }
@@ -302,6 +314,58 @@ function procesar_archivo_excel($nombre_arch, $nombre_tmp, $mapa_distritos, $rut
         $writer->save($ruta_territorio . $nombre_territorio . " " . $nombre_arch);
         $libro_des = null;
     }
+    
+    return $mapa_territorios_archivos;
+}
+
+function crear_archivo_resumen($mapa_territorios_archivos, $ruta_base) {
+    $doc_salida = new Spreadsheet();
+    $doc_salida
+            ->getProperties()
+            ->setCreator("MSPS")
+            ->setLastModifiedBy("MSPS")
+            ->setTitle("Consolidado de registros por ente territorial")
+            ->setSubject("Consolidado")
+            ->setDescription("Consolidado de registros por ente territorial")
+            ->setKeywords("Consolidado")
+            ->setCategory("Carga masiva");
+    
+    $doc_salida->setActiveSheetIndex(0)->setTitle("Conf");
+    $doc_salida->getActiveSheet()->getColumnDimension("A")->setWidth(30);
+    $doc_salida->getActiveSheet()->getColumnDimension("B")->setWidth(40);
+    $doc_salida->getActiveSheet()->getColumnDimension("C")->setWidth(20);
+    
+    $doc_salida->getActiveSheet()
+            ->setCellValue("A1", "Ente territorial")
+            ->setCellValue("B1", "Archivo")
+            ->setCellValue("C1", "Cantidad de registros");
+    
+    $contador_linea = 2;
+    $nom_dep_ant = "";
+    foreach ($mapa_territorios_archivos as $nom_dep_aux => $mapa_archivos_aux) {
+        foreach ($mapa_archivos_aux as $mom_arch_aux => $cantidad_aux) {
+            if ($nom_dep_aux != $nom_dep_ant) {
+                $nom_dep_act = $nom_dep_aux;
+            } else {
+                $nom_dep_act = "";
+            }
+            $doc_salida->getActiveSheet()
+                    ->setCellValue("A" . $contador_linea, $nom_dep_act)
+                    ->setCellValue("B" . $contador_linea, $mom_arch_aux)
+                    ->setCellValue("C" . $contador_linea, $cantidad_aux);
+            
+            $nom_dep_ant = $nom_dep_aux;
+            $contador_linea++;
+        }
+    }
+    
+    //Se crea el archivo
+    $doc_salida->setActiveSheetIndex(0);
+    $xlsxWrite = new XlsxWrite($doc_salida);
+    
+    //Ruta de guardado
+    $nombre_arch_salida = $ruta_base . "consolidado.xlsx";
+    $xlsxWrite->save($nombre_arch_salida);
 }
 
 function limpiar_directorio($directorio, $bol_borrar) {
@@ -429,6 +493,9 @@ switch ($opcion) {
                 $mapa_distritos[$nom_dep_aux] = $arr_aux;
             }
             
+            //Mapa en el que se guardarán los totales de archvos y registros por territorio
+            $mapa_territorios_archivos = array();
+            
             foreach ($arr_nombres_aux as $k => $nombre_ori_aux) {
                 $extension_aux = strtolower($utilidades->get_extension_arch($nombre_ori_aux));
                 
@@ -478,13 +545,15 @@ switch ($opcion) {
                     }
                     
                     if ($tipo_arch > 0) {
-                        procesar_archivo_excel($nombre_ori_aux, $arr_tmp_nombres_aux[$k], $mapa_distritos, $ruta_base, $col_dep, $col_mun);
+                        $mapa_territorios_archivos = procesar_archivo_excel($nombre_ori_aux, $arr_tmp_nombres_aux[$k], $mapa_distritos, $ruta_base, $col_dep, $col_mun, $mapa_territorios_archivos);
                     }
                 }
             }
             ?>
         </div>
         <?php
+        crear_archivo_resumen($mapa_territorios_archivos, $ruta_base);
+        
         $nombre_paquete = crear_paquete_zip($ruta_base, "1234");
         
         if ($nombre_paquete != "") {
