@@ -15,12 +15,24 @@ class DbMunicipios extends DbConexion {//Clase que hace referencia a la tabla: l
         }
     }
     
+    public function getListaMunicipios() {
+        try {
+            $sql = "SELECT *
+                    FROM municipios
+                    ORDER BY cod_mun_dane";
+           
+            return $this->getDatos($sql);
+        } catch (Exception $e) {
+            return array();
+        }
+    }
+    
     public function getListaMunicipiosDepartamento($codDep) {
         try {
-            $sql = "SELECT * " .
-                    "FROM municipios " .
-                    "WHERE cod_dep=" . $codDep . " " .
-                    "ORDER BY cod_mun_dane";
+            $sql = "SELECT *
+                    FROM municipios
+                    WHERE cod_dep=" . $codDep . "
+                    ORDER BY cod_mun_dane";
            
             return $this->getDatos($sql);
         } catch (Exception $e) {
