@@ -387,7 +387,7 @@ switch ($opcion) {
                 $hoja_aux = new Worksheet($doc_salida, "Alertas dep def");
                 $doc_salida->addSheet($hoja_aux);
                 $doc_salida->setActiveSheetIndex(3);
-                $doc_salida = crear_hoja_alertas($doc_salida, $mapa_defunciones_rev);
+                $doc_salida = crear_hoja_alertas($doc_salida, $mapa_defunciones_dep_rev);
                 
                 //Se crea el archivo
                 $doc_salida->setActiveSheetIndex(0);
